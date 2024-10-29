@@ -1,46 +1,116 @@
-namespace Balta.Domain.Test.AccountContext.ValueObjects;
+using Balta.Domain.AccountContext.ValueObjects;
+using Balta.Domain.AccountContext.ValueObjects.Exceptions;
+using Xunit;
 
-public class PasswordTests
+namespace Balta.Domain.Test.AccountContext.ValueObjects
 {
-    [Fact]
-    public void ShouldFailIfPasswordIsNull() => Assert.Fail();
-    
-    [Fact]
-    public void ShouldFailIfPasswordIsEmpty() => Assert.Fail();
-    
-    [Fact]
-    public void ShouldFailIfPasswordIsWhiteSpace() => Assert.Fail();
-    
-    [Fact]
-    public void ShouldFailIfPasswordLenIsLessThanMinimumChars() => Assert.Fail();
-    
-    [Fact]
-    public void ShouldFailIfPasswordLenIsGreaterThanMaxChars() => Assert.Fail();
-    
-    [Fact]
-    public void ShouldHashPassword() => Assert.Fail();
-    
-    [Fact]
-    public void ShouldVerifyPasswordHash() => Assert.Fail();
-    
-    [Fact]
-    public void ShouldGenerateStrongPassword() => Assert.Fail();
-    
-    [Fact]
-    public void ShouldImplicitConvertToString() => Assert.Fail();
-    
-    [Fact]
-    public void ShouldReturnHashAsStringWhenCallToStringMethod() => Assert.Fail();
-    
-    [Fact]
-    public void ShouldMarkPasswordAsExpired() => Assert.Fail();
-    
-    [Fact]
-    public void ShouldFailIfPasswordIsExpired() => Assert.Fail();
-    
-    [Fact]
-    public void ShouldMarkPasswordAsMustChange() => Assert.Fail();
-    
-    [Fact]
-    public void ShouldFailIfPasswordIsMarkedAsMustChange() => Assert.Fail();
+    public class PasswordTests
+    {
+        private const string ValidPassword = "SenhaBalta123!";
+        private const string WeakPassword = "321";
+
+        [Fact]
+        public void ShouldFailIfPasswordIsNull()
+        {
+            Assert.Throws<InvalidPasswordException>(() => Password.ShouldCreate(null));
+        }
+        
+        [Fact]
+        public void ShouldFailIfPasswordIsEmpty()
+        {
+            Assert.Throws<InvalidPasswordException>(() => Password.ShouldCreate(string.Empty));
+        }
+
+        [Fact]
+        public void ShouldFailIfPasswordIsWhiteSpace()
+        {
+            Assert.Throws<InvalidPasswordException>(() => Password.ShouldCreate("     "));
+        }
+
+        [Fact]
+        public void ShouldFailIfPasswordLenIsLessThanMinimumChars()
+        {
+            Assert.Throws<InvalidPasswordException>(() => Password.ShouldCreate(WeakPassword));
+        }
+
+        [Fact]
+        public void ShouldFailIfPasswordLenIsGreaterThanMaxChars()
+        {
+            var longPassword = new string('a', 49);
+            Assert.Throws<InvalidPasswordException>(() => Password.ShouldCreate(longPassword));
+        }
+
+        [Fact]
+        public void ShouldHashPassword()
+        {
+            var password = Password.ShouldCreate(ValidPassword);
+            Assert.NotNull(password.Hash);
+        }
+
+        [Fact]
+        public void ShouldVerifyPasswordHash()
+        {
+            var password = Password.ShouldCreate(ValidPassword);
+            Assert.True(Password.ShouldMatch(password.Hash, ValidPassword));
+        }
+
+        [Fact]
+        public void ShouldGenerateStrongPassword()
+        {
+            var generatedPassword = Password.ShouldGenerate();
+            Assert.True(generatedPassword.Length >= 8);
+        }
+
+        [Fact]
+        public void ShouldImplicitConvertToString()
+        {
+            var password = Password.ShouldCreate(ValidPassword);
+            string passwordHash = password;
+
+            Assert.Equal(password.Hash, passwordHash);
+        }
+
+        [Fact]
+        public void ShouldReturnHashAsStringWhenCallToStringMethod()
+        {
+            var password = Password.ShouldCreate(ValidPassword);
+            var result = password.ToString();
+
+            Assert.Equal(password.Hash, result);
+        }
+
+        [Fact]
+        public void ShouldMarkPasswordAsExpired()
+        {
+            var password = Password.ShouldCreate(ValidPassword);
+            password.MarkAsExpired();
+
+            Assert.True(password.IsExpired());
+        }
+
+        [Fact]
+        public void ShouldFailIfPasswordIsExpired()
+        {
+            var password = Password.ShouldCreate(ValidPassword, expiresAtUtc: DateTime.UtcNow.AddSeconds(-1));
+
+            Assert.True(password.IsExpired());
+        }
+
+        [Fact]
+        public void ShouldMarkPasswordAsMustChange()
+        {
+            var password = Password.ShouldCreate(ValidPassword);
+            password.MarkAsMustChange();
+
+            Assert.True(password.IsMarkedAsMustChange());
+        }
+
+        [Fact]
+        public void ShouldFailIfPasswordIsMarkedAsMustChange()
+        {
+            var password = Password.ShouldCreate(ValidPassword, mustChange: true);
+
+            Assert.True(password.IsMarkedAsMustChange());
+        }
+    }
 }
