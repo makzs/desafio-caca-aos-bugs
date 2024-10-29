@@ -8,13 +8,11 @@ Depuração e solução de bugs, pensamento crítico e analítico, segurança e 
 
 ## Participantes
 ### 🚀 Líder Técnico
-[NOME e GITHUB]
+Vinicius Travenssoli - https://github.com/viniciustravenssoli
 
 ### 👻 Caçadores de Bugs
-* [NOME e GITHUB]
-* [NOME e GITHUB]
-* [NOME e GITHUB]
-* [NOME e GITHUB]
+* Vinicius Travenssoli - https://github.com/viniciustravenssoli
+* Erik Makiak - https://github.com/makzs
 
 ## ⚙️ Tecnologias
 * C# 12
